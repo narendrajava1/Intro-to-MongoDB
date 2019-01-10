@@ -1,7 +1,11 @@
 .DS_Store
 
+# Virtual environment
+mflix-env/
+
+# Python compilation files
 __python__/
 *.pyc
 
-# Virtual environment
-mflix-env/
+# Jupyter checkpoints
+.ipynb_checkpoints/

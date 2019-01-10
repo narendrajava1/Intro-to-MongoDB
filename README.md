@@ -40,8 +40,35 @@ source mflix-env/bin/activate
 pip3 install jupyter
 
 cd notebooks
-jupyter notebook  # Start Jupyter local server, and open Jupyter interface in the browser
+jupyter notebook  # Start Jupyter local server on port 8888, and open Jupyter interface in the browser
+
+# To stop jupyter local server
+jupyter notebook stop 8888
 ```
 
 ***
 
+<br>
+
+## Import Data to MongoDB Atlas
+
+```bash
+cd mflix
+mongoimport --type csv --headerline --file movies_initial.csv --host "Cluster0-shard-0/cluster0-shard-00-00-hanbs.mongodb.net:27017,cluster0-shard-00-01-hanbs.mongodb.net:27017,cluster0-shard-00-02-hanbs.mongodb.net:27017" --db mflix --collection movies_initial --authenticationDatabase admin --ssl --username <username> --password <password>
+```
+
+***
+
+### MongoDB Compass
+
+**-> GUI client for MongoDB**
+
+Check out https://www.mongodb.com/products/compass
+
+***
+
+<br>
+
+## License
+
+This repo is distributed under the <a href="https://github.com/Ziang-Lu/Intro-to-MongoDB/blob/master/LICENSE">MIT License</a>.
