@@ -7,5 +7,6 @@ mflix-env/
 __python__/
 *.pyc
 
-# Jupyter checkpoints
+# Jupyter files
+*.ipynb
 .ipynb_checkpoints/
