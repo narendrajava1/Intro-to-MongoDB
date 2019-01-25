@@ -8,6 +8,8 @@ $group, $sort and $sortByCount stages demo
 
 __author__ = 'Ziang Lu'
 
+import pprint
+
 from pymongo import MongoClient
 
 DB = 'mflix'
@@ -44,4 +46,4 @@ pipeline = [
 ]
 
 for result in movies_initial.aggregate(pipeline):
-    print(result)
+    pprint.pprint(result)
