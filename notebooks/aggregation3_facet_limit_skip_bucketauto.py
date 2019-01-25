@@ -48,9 +48,7 @@ pipeline = [
                     # This will automatically calculate the range for each
                     # bucket, and put documents within the same range to the
                     # same bucket.
-                    'output': {
-                        'language combinations': {'$sum': 1}
-                    }
+                    'output': {'language combinations': {'$sum': 1}}
                     # For each bucket, it will output the value we specified for
                     # the "output" key.
                 }}  # stage2.2: 'bucketAuto' stage

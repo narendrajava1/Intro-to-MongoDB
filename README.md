@@ -69,6 +69,30 @@ Check out https://www.mongodb.com/products/compass
 
 <br>
 
+## MongoDB Fundamentals
+
+### MongoDB Query Language
+
+Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/6-MongoDB/MongoDB.md
+
+### `PyMongo` Usage
+
+Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/6-MongoDB/pymongo_demo.py and `scripting_projection.py`
+
+### MongoDB Aggregation Framework
+
+Check out the demo files for:
+
+| Function                     | Aggregation                            |
+| ---------------------------- | -------------------------------------- |
+| Filtering                    | `$match`                               |
+| Aggregation                  | `$group`, `$sortByRank`, `$bucketAuto` |
+| Parallel pipeline processing | `$facet`                               |
+| Projection                   | `$addFields`, `$project`, `$cond`      |
+| Post-processing              | `$sort`, `$limit`, `$skip`, `$out`     |
+
+<br>
+
 ## License
 
 This repo is distributed under the <a href="https://github.com/Ziang-Lu/Intro-to-MongoDB/blob/master/LICENSE">MIT License</a>.
