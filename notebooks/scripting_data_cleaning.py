@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 """
-Achieving the same operations as Aggregation Framework pipeline using PyMongo
-scripting.
+This module achieves the same operations as Aggregation Framework pipeline using
+PyMongo scripting.
 
 Note that one key difference is that here we are UPDATING the documents
 IN-PLACE, where with Aggregation Framework, we are dumping out the result to
 another collection
 """
+
+__author__ = 'Ziang Lu'
 
 from datetime import datetime
 
@@ -15,7 +17,7 @@ from pymongo import MongoClient, UpdateOne
 
 DB = 'mflix'
 PASSWORD = 'Zest2016!'
-BATCH_SIZE = 1000  # Batch size for batch upting with bulk_write()
+BATCH_SIZE = 1000  # Batch size for batch updating with bulk_write()
 
 conn_uri = 'mongodb://zianglu:' + PASSWORD + '@cluster0-shard-00-00-hanbs.mongodb.net:27017,cluster0-shard-00-01-hanbs.mongodb.net:27017,cluster0-shard-00-02-hanbs.mongodb.net:27017/' + \
     DB + '?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true'
@@ -32,7 +34,7 @@ imdb_renaming = {
     'imdbID': 'id', 'imdbRating': 'rating', 'imdbVotes': 'votes'
 }
 
-batch_requests = []
+batch_updates = []
 for movie in movies.find({}):
     # Construct the fields to update (set and unset, respectively)
     fields_to_set = {}
@@ -92,14 +94,16 @@ for movie in movies.find({}):
     # We will add the current update to a batch of updates, and when the current
     # batch size reaches the batch size limit, send the batch updates to the
     # server at once.
-    batch_requests.append(
+    batch_updates.append(
         UpdateOne(filter={'_id': movie['_id']}, update=update)
     )
-    if len(batch_requests) == BATCH_SIZE:
-        movies.bulk_write(requests=batch_requests)
+    if len(batch_updates) == BATCH_SIZE:
+        movies.bulk_write(requests=batch_updates)
         print(f'Finished updating a batch of {BATCH_SIZE} documents')
-        batch_requests = []
+        batch_updates = []
 # Take care of the last batch of updates
-if batch_requests:
-    movies.bulk_write(requests=batch_requests)
-    print(f'Finished updating a last batch of {len(batch_requests)} documents')
+if batch_updates:
+    movies.bulk_write(requests=batch_updates)
+    print(f'Finished updating a last batch of {len(batch_updates)} documents')
+
+print('Finshed all the updates.')

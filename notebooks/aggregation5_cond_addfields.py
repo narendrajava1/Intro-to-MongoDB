@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-MongoDB Aggregation Framework demo1.
+MongoDB Aggregation Framework demo5.
 
 $cond and $addFields stages demo
 """
