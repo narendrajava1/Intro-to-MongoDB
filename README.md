@@ -6,7 +6,7 @@ This repo contains course notes and project in **Intro to MongoDB** course from 
 
 ### 1. MongoDB Installation and Setup
 
-Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/6-MongoDB/MongoDB.md
+Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/5-MongoDB/MongoDB.md
 
 <br>
 
@@ -73,11 +73,11 @@ Check out https://www.mongodb.com/products/compass
 
 ### MongoDB Query Language
 
-Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/6-MongoDB/MongoDB.md
+Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/5-MongoDB/MongoDB.md
 
 ### `PyMongo` Usage
 
-Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/6-MongoDB/pymongo_demo.py and `scripting_projection.py`
+Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/5-MongoDB/pymongo_demo.py and `scripting_projection.py`
 
 ### MongoDB Aggregation Framework
 
