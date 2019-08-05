@@ -12,7 +12,7 @@ Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/5-Mong
 
 ### 2. MongoDB Atlas Setup
 
-**MongoDB Atlas -> Cluster that provides MongoDB hosting service**
+**MongoDB Atlas: Cluster that provides MongoDB hosting service**
 
 Check out https://www.mongodb.com/cloud/atlas
 
@@ -21,7 +21,7 @@ Check out https://www.mongodb.com/cloud/atlas
 ### 3. Python Environment Setup
 
 ```bash
-virtualenv --no-site-packages mflix-env
+virtualenv mflix-env
 ```
 
 ```bash
@@ -29,24 +29,6 @@ source mflix-env/bin/activate
 
 pip3 install pymongo dnspython
 ```
-
-***
-
-**Jupyter**
-
-```bash
-source mflix-env/bin/activate
-
-pip3 install jupyter
-
-cd notebooks
-jupyter notebook  # Start Jupyter local server on port 8888, and open Jupyter interface in the browser
-
-# To stop jupyter local server
-jupyter notebook stop 8888
-```
-
-***
 
 <br>
 
@@ -83,13 +65,13 @@ Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/5-Mong
 
 Check out the demo files for:
 
-| Function                     | Aggregation                            |
-| ---------------------------- | -------------------------------------- |
-| Filtering                    | `$match`                               |
-| Aggregation                  | `$group`, `$sortByRank`, `$bucketAuto` |
-| Parallel pipeline processing | `$facet`                               |
-| Projection                   | `$addFields`, `$project`, `$cond`      |
-| Post-processing              | `$sort`, `$limit`, `$skip`, `$out`     |
+| Function                     | Aggregation                             |
+| ---------------------------- | --------------------------------------- |
+| Filtering                    | `$match`                                |
+| Aggregation                  | `$group`, `$sortByCount`, `$bucketAuto` |
+| Parallel pipeline processing | `$facet`                                |
+| Projection                   | `$addFields`, `$project`, `$cond`       |
+| Post-processing              | `$sort`, `$limit`, `$skip`, `$out`      |
 
 <br>
 
