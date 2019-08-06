@@ -1,6 +1,6 @@
 # Coursera-Intro to MongoDB   [MongoDB Inc.]
 
-This repo contains course notes and project in **Intro to MongoDB** course from *MongoDB Inc.* on Coursera.
+This repo contains course notes and <u>Mflix project</u> in **Intro to MongoDB** course from *MongoDB Inc.* on Coursera.
 
 ## Course Environment Setup
 
