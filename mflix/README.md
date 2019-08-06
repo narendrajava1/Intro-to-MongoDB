@@ -36,3 +36,5 @@ which will restore the dumped data back into the DB cluster.
 > ./run.sh
 ```
 
+Then simply go to http://localhost:5000/
+
