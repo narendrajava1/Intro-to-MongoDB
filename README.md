@@ -2,7 +2,7 @@
 
 This repo contains course notes and project in **Intro to MongoDB** course from *MongoDB Inc.* on Coursera.
 
-## Environment Setup
+## Course Environment Setup
 
 ### 1. MongoDB Installation and Setup
 
@@ -16,28 +16,34 @@ Check out https://github.com/Ziang-Lu/Database-Learning-Notes/blob/master/5-Mong
 
 Check out https://www.mongodb.com/cloud/atlas
 
+***
+
+Play around with MongoDB Atlas:
+
+* Import data to MongoDB Atlas
+
+  ```bash
+  > cd mflix
+  > mongoimport --type csv --headerline --file movies_initial.csv --host "Cluster0-shard-0/cluster0-shard-00-00-hanbs.mongodb.net:27017,cluster0-shard-00-01-hanbs.mongodb.net:27017,cluster0-shard-00-02-hanbs.mongodb.net:27017" --db mflix --collection movies_initial --authenticationDatabase admin --ssl --username <username> --password <password>
+  ```
+
+***
+
 <br>
 
 ### 3. Python Environment Setup
 
 ```bash
-virtualenv mflix-env
+> virtualenv mflix-env
 ```
 
 ```bash
-source mflix-env/bin/activate
+> source mflix-env/bin/activate
 
-pip3 install pymongo dnspython
+> pip3 install pymongo dnspython
 ```
 
 <br>
-
-## Import Data to MongoDB Atlas
-
-```bash
-cd mflix
-mongoimport --type csv --headerline --file movies_initial.csv --host "Cluster0-shard-0/cluster0-shard-00-00-hanbs.mongodb.net:27017,cluster0-shard-00-01-hanbs.mongodb.net:27017,cluster0-shard-00-02-hanbs.mongodb.net:27017" --db mflix --collection movies_initial --authenticationDatabase admin --ssl --username <username> --password <password>
-```
 
 ***
 
@@ -72,6 +78,12 @@ Check out the demo files for:
 | Parallel pipeline processing | `$facet`                                |
 | Projection                   | `$addFields`, `$project`, `$cond`       |
 | Post-processing              | `$sort`, `$limit`, `$skip`, `$out`      |
+
+<br>
+
+## Mflix Project
+
+Check out `mflix` folder, which is the root directory of Mflix project
 
 <br>
 
