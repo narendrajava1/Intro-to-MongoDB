@@ -10,3 +10,6 @@ __python__/
 # Jupyter files
 *.ipynb
 .ipynb_checkpoints/
+
+# Project files
+.idea/

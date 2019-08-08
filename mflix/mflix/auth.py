@@ -53,7 +53,6 @@ def signup():
     Sign-up page.
     :return:
     """
-    # TODO: Figure out this logic here
     if request.method == 'GET':
         return redirect(url_for('login'))
 
