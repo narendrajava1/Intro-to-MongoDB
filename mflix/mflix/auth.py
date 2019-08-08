@@ -1,9 +1,17 @@
+# -*- coding: utf-8 -*-
+
+"""
+Flask application module.
+"""
+
+from typing import Union
+
 import flask_bcrypt
 import flask_login
 from flask import redirect, render_template, request, url_for
 
 import mflix.db as db
-from mflix.mflix import app
+from .mflix import app
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
@@ -32,7 +40,7 @@ def create_user_object(user_doc: dict) -> User:
 
 # TODO: Figure this out
 @login_manager.user_loader
-def user_loader(email: str) -> User|None:
+def user_loader(email: str) -> Union[User, None]:
     user_doc = db.get_user(email)
     if not user_doc:
         return

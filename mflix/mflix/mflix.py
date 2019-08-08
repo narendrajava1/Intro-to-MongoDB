@@ -19,8 +19,10 @@ app.config.from_envvar('MFLIX_SETTINGS', silent=True)
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
+from .auth import login, logout
 
-@app.route('/', method=['GET'])
+
+@app.route('/', methods=['GET'])
 def show_movies():
     """
     Mflix application home page.
@@ -48,8 +50,12 @@ def show_movies():
     )
     # TODO: implementation
 
+    # all_genres = db.get_all_genres()
 
-@app.route('/movies/<id>', method=['GET', 'POST'])
+    return render_template('movies.html')
+
+
+@app.route('/movies/<id>', methods=['GET', 'POST'])
 @flask_login.login_required
 def show_movie(id):
     # TODO: Pay attention to, when sending "POST" request, request.form
@@ -57,6 +63,12 @@ def show_movie(id):
         'movie.html', movie=db.get_movie(id),
         new_comment=request.form.get('comment')  # There may not be "comment", , and thus may not be "new_comment".
     )
+
+
+@app.route('/movies/<id>/comments', methods=['GET', 'POST'])
+@flask_login.login_required
+def show_movie_comments(id):
+    pass
 
 
 @app.route('/movies/<id>/comments/<comment_id>/delete', methods=['POST'])

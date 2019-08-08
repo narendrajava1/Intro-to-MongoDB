@@ -6,21 +6,6 @@
             <h1>Watching <a href="/movies/{{ movie._id }}">{{ movie['title'] }}</a>></h1>
         </div>
 
-{#        <p>#}
-{#        <span class="tag is-rounded is-warning">{{ movie['rated'] }}</span>#}
-{#        </p>#}
-{##}
-{#        <p>#}
-{#        <span>Directed By</span>#}
-{#        {% for director in movie['directors'] %}#}
-{#            <span><a href="/?search={{ director }}">{{ director }}</a></span>#}
-{#        {% endfor %}#}
-{#        <span>{{ movie['year'] }}</span>#}
-{#        <br/>#}
-{#        <span>Runtime:</span>#}
-{#        <span class="tag is-white">{{ movie['runtime'] // 60 }} hr {{ movie['runtime'] % 60 }} min</span>#}
-{#        </p>#}
-
         <!-- Whether this will work? -->
         {% with movie=movie %}
             {% include "partials/movie_basic_info.html" %}
@@ -30,10 +15,6 @@
             <iframe width="560" height="315" src="www.youtube.com/embed/{{ "dQw4w9WgXcQ" if (movie['year'] % 2 == 0) else "L_jWHffIx5E" }}?autoplay=1" frameborder="0" allowfullscreen></iframe>
         </div>
     {% else %}
-        <div class="content has-text-centered">
-            <h3 class="title">No movie found.</h3>
-            <h6 class="subtitle">Sorry about that!</h6>
-            <a class="button is-primary" href="/">Back to Mflix</a>
-        </div>
+        {% include "partials/no_movie_found.html" %}
     {% endif %}
 {% endblock %}
