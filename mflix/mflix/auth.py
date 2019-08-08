@@ -49,6 +49,10 @@ def user_loader(email: str) -> Union[User, None]:
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """
+    Sign-up page.
+    :return:
+    """
     # TODO: Figure out this logic here
     if request.method == 'GET':
         return redirect(url_for('login'))
@@ -84,9 +88,7 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    Login Page.
-    (Log-in required)
-    When a "GET" request or
+    Log-in Page.
     :return:
     """
     if request.method == 'GET':
@@ -114,9 +116,9 @@ def login():
 @flask_login.login_required
 def logout():
     """
-    Logout Page.
+    Logout page.
     (Log-in required)
-    When a "GET" request is forwarded to "/logout"
+    When a "GET" request is forwarded to "/logout", this function gets called.
     :return:
     """
     flask_login.logout_user()
@@ -126,4 +128,16 @@ def logout():
 @app.route('/profile', methods=['GET'])
 @flask_login.login_required
 def profile():
+    """
+    Profile page.
+    (Log-in required)
+    When a "GET" request is forwarded to "/profile", this function gets called.
+    :return:
+    """
     return render_template('profile.html')
+
+
+# TODO: Figure this out
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return render_template('splash_screen.html')

@@ -21,14 +21,14 @@ except KeyError:
     raise Exception("You haven't configured your MFLIX_DB_URI!")
 
 
-def get_page_movies(filters: dict, page: int,
-                    movies_per_page: int) -> Tuple[list, int]:
+def get_page_movies(filters: dict, movies_per_page: int,
+                    page: int) -> Tuple[list, int]:
     """
     Returns a movie list on the given page based on the given filters and number
     of movies per page.
     :param filters: dict
-    :param page: int
     :param movies_per_page: int
+    :param page: int
     :return: tuple
     """
     if '$text' in filters:
@@ -70,10 +70,8 @@ def get_all_genres() -> List[str]:
         },
         {
             '$project': {
-                {
-                    '_id': 0,
-                    'genres': 1
-                }
+                '_id': 0,
+                'genres': 1
             }
         },
         # TODO: Figure out this "group"

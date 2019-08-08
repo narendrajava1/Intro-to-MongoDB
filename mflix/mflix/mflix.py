@@ -4,6 +4,9 @@
 Flask application module.
 """
 
+from datetime import datetime
+from urllib.parse import urlencode
+
 from flask import Flask, redirect, render_template, request, url_for
 import flask_login
 
@@ -19,6 +22,8 @@ app.config.from_envvar('MFLIX_SETTINGS', silent=True)
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
+# Since in "auth.py", we are importing "app" from this module, we can import
+# that module only after we instantiated "app".
 from .auth import login, logout
 
 
@@ -31,7 +36,7 @@ def show_movies():
     """
     # Note!
     # When a "GET" request is forwarded, the URL may be carrying some arguments,
-    # which is stored in "request.args"
+    # which is stored in "request.args".
     try:
         page = int(request.args.get('page'))
     except (TypeError, ValueError):
@@ -45,35 +50,70 @@ def show_movies():
     if search:
         filters['$text'] = {'$search': search}
 
+    # For pagination
+    args_copy = request.args.copy()
+    args_copy['page'] = page - 1
+    prev_page = urlencode(args_copy)
+    args_copy['page'] = page + 1
+    next_page = urlencode(args_copy)
+
     page_movies, total_num_of_movies = db.get_page_movies(
-        filters, page, MOVIES_PER_PAGE
+        filters, MOVIES_PER_PAGE, page
     )
-    # TODO: implementation
 
-    # all_genres = db.get_all_genres()
+    all_genres = db.get_all_genres()
 
-    return render_template('movies.html')
+    return render_template(
+        'movies.html', total_num_of_entries=total_num_of_movies,
+        entries_per_page=MOVIES_PER_PAGE, page=page, filters=filters,
+        movies=page_movies, prev_page=prev_page, next_page=next_page,
+        all_genres=all_genres
+    )
 
 
 @app.route('/movies/<id>', methods=['GET', 'POST'])
 @flask_login.login_required
-def show_movie(id):
-    # TODO: Pay attention to, when sending "POST" request, request.form
-    return render_template(
-        'movie.html', movie=db.get_movie(id),
-        new_comment=request.form.get('comment')  # There may not be "comment", , and thus may not be "new_comment".
-    )
+def show_movie(id: str):
+    """
+    Movie detail page.
+    (Log-in required)
+    :param id: str
+    :return:
+    """
+    if request.method == 'POST':
+        # Note!
+        # When a "POST" request is forwarded, the request is carrying the filled
+        # form, stored in "request.form"
+        return render_template('movie.html', movie=db.get_movie(id), new_comment=request.form['comment'])
+
+    return render_template('movie.html', movie=db.get_movie(id))
 
 
 @app.route('/movies/<id>/comments', methods=['GET', 'POST'])
 @flask_login.login_required
-def show_movie_comments(id):
-    pass
+def show_movie_comments(id: str):
+    """
+    Movie comments page.
+    (Log-in required)
+    :param id: str
+    :return:
+    """
+    if request.method == 'POST':
+        comment = request.form['comment']
+        db.add_comment_to_movie(
+            id, flask_login.current_user, comment, datetime.now()
+        )
+        return redirect(url_for('show_movie', id=id))
+
+    return render_template(
+        'movie_comments.html', movie=db.get_movie(id),
+        comments=db.get_movie_comments(id)
+    )
 
 
 @app.route('/movies/<id>/comments/<comment_id>/delete', methods=['POST'])
 @flask_login.login_required
-def delete_movie_comment(id, comment_id):
+def delete_movie_comment(id: str, comment_id: str):
     """
     Movie deletion page.
     (Log-in required)
@@ -89,12 +129,13 @@ def delete_movie_comment(id, comment_id):
 
 @app.route('/movies/watch/<id>', methods=['GET'])
 @flask_login.login_required
-def watch_movie(id):
+def watch_movie(id: str):
     """
     Movie watch page.
     (Log-in required)
     When a "GET" request is forwarded to "/movies/watch/<id>", this function
     gets called.
+    :param id: str
     :return:
     """
     return render_template('watch_movie.html', movie=db.get_movie(id))
