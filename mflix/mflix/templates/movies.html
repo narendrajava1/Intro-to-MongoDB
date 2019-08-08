@@ -23,6 +23,15 @@
         {% endfor %}
     </div>
 
+    {% set RATING_NAME = 'IMDB' %}
+    {% set VALID_RATING = movie.imdb and movie.imdb.rating and movie.imdb.rating is number %}
+    {% set CONDENSED_RATING = True %}
+    {% if VALID_RATING %}
+        {% set MAX_RATING = 10 %}
+        {% set rating = movie['imdb']['rating'] %}
+        {% include "partials/rating_bar.html" %}
+    {% endif %}
+
     <hr/>
     <div class="has-text-centered">
         <h6>Filter By Genre</h6>
