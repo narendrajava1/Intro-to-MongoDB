@@ -6,16 +6,17 @@ Interface module with MongoDB.
 
 import os
 from datetime import datetime
-from typing import Tuple
+from typing import List, Tuple
 
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from pymongo import DESCENDING, MongoClient
+from pymongo.errors import DuplicateKeyError
 
 MOVIE_COMMENT_CACHE_LIMIT = 10
 
 try:
-    db = MongoClient(os.environ['MFLIX_DB_URI']).mflix
+    db = MongoClient(os.environ['MFLIX_DB_URI'])[os.environ['DB_NAME']]
 except KeyError:
     raise Exception("You haven't configured your MFLIX_DB_URI!")
 
@@ -30,16 +31,14 @@ def get_page_movies(filters: dict, page: int,
     :param movies_per_page: int
     :return: tuple
     """
-    sort_key = 'tomatoes.viewers.numReviews'
-
     if '$text' in filters:
-        # TODO: figure out this part
         score_meta_doc = {'$meta': 'textScore'}
         movies = db.movies.find(
             filter=filters, projection={'score': score_meta_doc}
         ).sort([('score', score_meta_doc)])
     else:
-        movies = db.movies.find(filter=filters).sort()
+        movies = db.movies.find(filter=filters)\
+            .sort('tomatoes.viewers.numReviews', direction=DESCENDING)
 
     total_num_of_movies = movies.count()
 
@@ -60,6 +59,68 @@ def get_movie(_id: str):
         return None
 
 
+def get_all_genres() -> List[str]:
+    """
+    Returns all the genres.
+    :return:
+    """
+    pipeline = [
+        {
+            '$unwind': '$genres'
+        },
+        {
+            '$project': {
+                {
+                    '_id': 0,
+                    'genres': 1
+                }
+            }
+        },
+        # TODO: Figure out this "group"
+        {
+            '$group': {
+                '_id': None,
+                'genres': {
+                    '$addToSet': '$genres'
+                }
+            }
+        }
+    ]
+    # TODO: From previous pipeline
+    # After the pipeline, there is only one document, containing only one field
+    # "genres", which is array containing all the different genres.
+    return list(db.movies.aggregate(pipeline))[0]['genres']
+
+
+def get_user(email: str):
+    """
+    Returns the user with the given email.
+    :param email: str
+    :return:
+    """
+    return db.users.find_one({'email': email})  # Could be None
+
+
+def add_user(name: str, email: str, hashedpw: str):
+    """
+    Adds a user with the given name, email and hashed password.
+    :param name: str
+    :param email: str
+    :param hashedpw: str
+    :return:
+    """
+    new_user = {
+        'name': name,
+        'email': email,
+        'pw': hashedpw
+    }
+    try:
+        db.users.insert_one(new_user)
+        return {'success': True}
+    except DuplicateKeyError:
+        return {'error': 'A user with the given email already exists.'}
+
+
 def get_movie_comments(_id: str):
     """
     Returns the comments of the given movie, from most-recent to least-recent.
@@ -71,15 +132,6 @@ def get_movie_comments(_id: str):
             .sort('date', direction=DESCENDING)
     except InvalidId:
         return None
-
-
-def get_user(email: str):
-    """
-    Returns the user with the given email.
-    :param email: str
-    :return:
-    """
-    return db.users.find_one({'email': email})  # Could be None
 
 
 def add_comment_to_movie(movie_id: str, user, comment: str,
@@ -95,7 +147,8 @@ def add_comment_to_movie(movie_id: str, user, comment: str,
     movie = get_movie(movie_id)
     if movie:
         movie_id = ObjectId(movie_id)
-        comment_doc = {
+        # 1. Add a new comment to "comments" collection
+        new_comment = {
             '_id': f'{movie_id}-{user.name}-{datetime.timestamp()}',
             'movie_id': movie_id,
             'name': user.name,
@@ -103,16 +156,18 @@ def add_comment_to_movie(movie_id: str, user, comment: str,
             'text': comment,
             'date': date
         }
-        db.comments.insert_one(comment_doc)
-
+        db.comments.insert_one(new_comment)
+        # 2. At the same time, update the corresponding movie in "movies"
+        # collection
         movie_update = {
-            # Increment "num_flix_comments" count on the movie
+            # 2.1 Increment the comment count on the movie
             '$inc': {
                 'num_mflix_comments': 1
             },
+            # 2.2 Update the cached comments on the movie
             '$push': {
                 'comments': {
-                    '$each': [comment_doc],
+                    '$each': [new_comment],
                     '$sort': {'date': -1},
                     '$slice': MOVIE_COMMENT_CACHE_LIMIT
                 }
@@ -128,11 +183,13 @@ def delete_comment_from_movie(movie_id: str, comment_id: str) -> None:
     :param comment_id: str
     :return: None
     """
-    # Delete the comment from "comments" collection
+    # 1. Delete the comment from "comments" collection
     comment_id = ObjectId(comment_id)
     db.comments.delete_one({'_id': comment_id})
 
-    # Decrement "num_mflix_comment" count on the movie
+    # 2. At the same time, update the corresponding movie in "movies" collection
+
+    # 2.1 Decrement the comment count on the movie
     movie_id = ObjectId(movie_id)
     movie_update = {
         '$inc': {
@@ -141,9 +198,10 @@ def delete_comment_from_movie(movie_id: str, comment_id: str) -> None:
     }
     db.movies.update_one(filter={'_id': movie_id}, update=movie_update)
 
-    # Check whether the comment is on the movie in "movies" collections
+    # Check whether the comment is cached on the movie
     movie = db.movies.find_one({'comments._id': comment_id})
     if movie:
+        # 2.2 If so, update the cached comments on the movie
         updated_comments = db.comments.find({'movie_id': movie_id})\
             .sort('date', direction=DESCENDING).limit(MOVIE_COMMENT_CACHE_LIMIT)
         movie_update = {
