@@ -84,7 +84,6 @@ def get_all_genres() -> List[str]:
             }
         }
     ]
-    # TODO: From previous pipeline
     # After the pipeline, there is only one document, containing only one field
     # "genres", which is array containing all the different genres.
     return list(db.movies.aggregate(pipeline))[0]['genres']

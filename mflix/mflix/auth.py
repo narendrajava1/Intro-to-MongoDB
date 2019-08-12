@@ -56,7 +56,6 @@ def signup():
     if request.method == 'GET':
         return redirect(url_for('login'))
 
-    # When sending "POST" request, request.form
     name = request.form['name']
     email = request.form['email']
     pw = request.form['password']
@@ -65,7 +64,7 @@ def signup():
         return render_template(
             'login.html', signuperror='Password must be at least 8 characters.'
         )
-    elif pw != request.form['confirmed_password']:
+    elif pw != request.form['confirm-password']:
         return render_template(
             'login.html', signuperror='Make sure to confirm the password!'
         )
@@ -80,7 +79,7 @@ def signup():
 
     new_user = db.get_user(email)
     new_user_obj = create_user_object(new_user)
-    flask_login.login_user(new_user)
+    flask_login.login_user(new_user_obj)
     return redirect(url_for('show_movies'))
 
 
@@ -111,7 +110,7 @@ def login():
     return redirect(url_for('show_movies'))
 
 
-@app.route('/logout', methods=['GET'])
+@app.route('/logout')
 @flask_login.login_required
 def logout():
     """
@@ -124,7 +123,7 @@ def logout():
     return redirect(url_for('show_movies'))
 
 
-@app.route('/profile', methods=['GET'])
+@app.route('/profile')
 @flask_login.login_required
 def profile():
     """

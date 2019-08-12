@@ -2,7 +2,7 @@
 
 {% if rating_out_of_100 >= 80 %}
     {% set progress_color = 'success' %}
-{% elif %}
+{% elif rating_out_of_100 >= 60 %}
     {% set progress_color = 'info' %}
 {% else %}
     {% set progress_color = 'danger' %}

@@ -27,7 +27,7 @@ login_manager.init_app(app)
 from .auth import login, logout
 
 
-@app.route('/', methods=['GET'])
+@app.route('/')
 def show_movies():
     """
     Mflix application home page.
@@ -63,12 +63,17 @@ def show_movies():
 
     all_genres = db.get_all_genres()
 
-    return render_template(
-        'movies.html', total_num_of_entries=total_num_of_movies,
-        entries_per_page=MOVIES_PER_PAGE, page=page, filters=filters,
-        movies=page_movies, prev_page=prev_page, next_page=next_page,
-        all_genres=all_genres
-    )
+    context = {
+        'total_num_of_entries': total_num_of_movies,
+        'entries_per_page': MOVIES_PER_PAGE,
+        'page': page,
+        'filters': filters,
+        'movies': page_movies,
+        'prev_page': prev_page,
+        'next_page': next_page,
+        'all_genres': all_genres
+    }
+    return render_template('movies.html', **context)
 
 
 @app.route('/movies/<id>', methods=['GET', 'POST'])
@@ -80,13 +85,12 @@ def show_movie(id: str):
     :param id: str
     :return:
     """
+    context = {
+        'movie': db.get_movie(id)
+    }
     if request.method == 'POST':
-        # Note!
-        # When a "POST" request is forwarded, the request is carrying the filled
-        # form, stored in "request.form"
-        return render_template('movie.html', movie=db.get_movie(id), new_comment=request.form['comment'])
-
-    return render_template('movie.html', movie=db.get_movie(id))
+        context['new_comment'] = request.form['comment']
+    return render_template('movie.html', **context)
 
 
 @app.route('/movies/<id>/comments', methods=['GET', 'POST'])
@@ -105,10 +109,11 @@ def show_movie_comments(id: str):
         )
         return redirect(url_for('show_movie', id=id))
 
-    return render_template(
-        'movie_comments.html', movie=db.get_movie(id),
-        comments=db.get_movie_comments(id)
-    )
+    context = {
+        'movie': db.get_movie(id),
+        'comments': db.get_movie_comments(id)
+    }
+    return render_template('movie_comments.html', **context)
 
 
 @app.route('/movies/<id>/comments/<comment_id>/delete', methods=['POST'])
@@ -127,7 +132,7 @@ def delete_movie_comment(id: str, comment_id: str):
     return redirect(url_for('show_movie', id=id))
 
 
-@app.route('/movies/watch/<id>', methods=['GET'])
+@app.route('/movies/watch/<id>')
 @flask_login.login_required
 def watch_movie(id: str):
     """
@@ -138,4 +143,7 @@ def watch_movie(id: str):
     :param id: str
     :return:
     """
-    return render_template('watch_movie.html', movie=db.get_movie(id))
+    context = {
+        'movie': db.get_movie(id)
+    }
+    return render_template('watch_movie.html', **context)

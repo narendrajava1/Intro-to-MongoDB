@@ -25,7 +25,7 @@
         <div class="level-item has-text-centered">
             <div class="inline-block" style="width: 400px;">
                 {% if current_user.is_authenticated %}
-                    <a class="button is-primary" href="{{ url_for('profile') }}">{{ currrent_user.first_name.title() }}</a>
+                    <a class="button is-primary" href="{{ url_for('profile') }}">{{ current_user.first_name.title() }}</a>
                     <a class="button" href="{{ url_for('logout') }}">Log Out</a>
                 {% else %}
                     <a class="button is-primary" href="{{ url_for('signup') }}">Sign Up</a>
