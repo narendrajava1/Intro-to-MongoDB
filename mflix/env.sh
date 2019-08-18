@@ -1,7 +1,8 @@
 #!/bin/bash
 
-export FLASK_APP=mflix/mflix.py
+export FLASK_APP="mflix"
 export FLASK_ENV="development"
+
 export USER="zianglu"
 export PASSWORD="Zest2016!"
 export DB_NAME="mflix"

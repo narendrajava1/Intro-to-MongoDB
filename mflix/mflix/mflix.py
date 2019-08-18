@@ -12,18 +12,18 @@ import flask_login
 
 import mflix.db as db
 
-MOVIES_PER_PAGE = 20
-
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config.update(dict(SECRET_KEY='mflix-app-mongodb'))
+app.config['SECRET_KEY'] = 'mflix-app-mongodb'
+# Override the configuration values from the configuration file, which is
+# pointed by "MFLIX_SETTINGS" environment variable
 app.config.from_envvar('MFLIX_SETTINGS', silent=True)
 
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
 
-# Since in "auth.py", we are importing "app" from this module, we can import
-# that module only after we instantiated "app".
+# Since in "auth.py", we are importing "app" from this module, we have to import
+# that "auth.py" module after we instantiated "app".
 from .auth import login, logout
 
 
@@ -34,6 +34,8 @@ def show_movies():
     When a "GET" request is forwarded to "/", this function gets called.
     :return:
     """
+    movies_per_page = 20
+
     # Note!
     # When a "GET" request is forwarded, the URL may be carrying some arguments,
     # which is stored in "request.args".
@@ -58,14 +60,14 @@ def show_movies():
     next_page = urlencode(args_copy)
 
     page_movies, total_num_of_movies = db.get_page_movies(
-        filters, MOVIES_PER_PAGE, page
+        filters, movies_per_page, page
     )
 
     all_genres = db.get_all_genres()
 
     context = {
         'total_num_of_entries': total_num_of_movies,
-        'entries_per_page': MOVIES_PER_PAGE,
+        'entries_per_page': movies_per_page,
         'page': page,
         'filters': filters,
         'movies': page_movies,
@@ -89,6 +91,9 @@ def show_movie(id: str):
         'movie': db.get_movie(id)
     }
     if request.method == 'POST':
+        # Note:
+        # When a "POST" request is forwarded, the request is carrying the filled
+        # form, stored in "request.form"
         context['new_comment'] = request.form['comment']
     return render_template('movie.html', **context)
 

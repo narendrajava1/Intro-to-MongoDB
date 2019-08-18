@@ -104,9 +104,7 @@ for movie in movies.find({}):
     # We will add the current update to a batch of updates, and when the current
     # batch size reaches the batch size limit, at once send the batch updates to
     # the server.
-    batch_updates.append(
-        UpdateOne(filter={'_id': movie['_id']}, update=update)
-    )
+    batch_updates.append(UpdateOne({'_id': movie['_id']}, update=update))
     if len(batch_updates) == BATCH_SIZE:
         movies.bulk_write(batch_updates)
         print(f'Finished updating a batch of {BATCH_SIZE} documents')

@@ -25,9 +25,7 @@ for person in people_raw.find({'birthday': {'$type': 'string'}}):
     # Instead of updating one document at a time, we will add the current update
     # to a batch of updates, and when the current batch size reaches the batch
     # size limit, send the batch updates to the server at once.
-    batch_updates.append(
-        UpdateOne(filter={'_id': person['_id']}, update=update)
-    )
+    batch_updates.append(UpdateOne({'_id': person['_id']}, update=update))
     if len(batch_updates) == BATCH_SIZE:
         people_raw.bulk_write(batch_updates)
         print(f'Finished updating a batch of {BATCH_SIZE} documents')

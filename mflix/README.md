@@ -1,5 +1,13 @@
 # Mflix Project
 
+## Tech Stack
+
+**Flask** as backend + **MongoDB** as database
+
+*This project uses `flask_login` module to handle user log-in/log-out and authentication issues.*
+
+<br>
+
 ## Project Environment Setup
 
 First, follow the course environment setup in `../README.md`

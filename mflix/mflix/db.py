@@ -13,6 +13,8 @@ from bson.objectid import ObjectId
 from pymongo import DESCENDING, MongoClient
 from pymongo.errors import DuplicateKeyError
 
+from .auth import User
+
 MOVIE_COMMENT_CACHE_LIMIT = 10
 
 try:
@@ -32,12 +34,12 @@ def get_page_movies(filters: dict, movies_per_page: int,
     :return: tuple
     """
     if '$text' in filters:
+        # TODO: Figure this out
         score_meta_doc = {'$meta': 'textScore'}
-        movies = db.movies.find(
-            filter=filters, projection={'score': score_meta_doc}
-        ).sort([('score', score_meta_doc)])
+        movies = db.movies.find(filters, projection={'score': score_meta_doc})\
+            .sort([('score', score_meta_doc)])
     else:
-        movies = db.movies.find(filter=filters)\
+        movies = db.movies.find(filters)\
             .sort('tomatoes.viewers.numReviews', direction=DESCENDING)
 
     total_num_of_movies = movies.count()
@@ -131,12 +133,12 @@ def get_movie_comments(_id: str):
         return None
 
 
-def add_comment_to_movie(movie_id: str, user, comment: str,
+def add_comment_to_movie(movie_id: str, user: User, comment: str,
                          date: datetime) -> None:
     """
     Adds a comment to the given movie from the given user, on the given date.
     :param movie_id: str
-    :param user:
+    :param user: User
     :param comment: str
     :param date: datetime
     :return: None
@@ -170,7 +172,7 @@ def add_comment_to_movie(movie_id: str, user, comment: str,
                 }
             }
         }
-        db.movies.update_one(filter={'_id': movie_id}, update=movie_update)
+        db.movies.update_one({'_id': movie_id}, update=movie_update)
 
 
 def delete_comment_from_movie(movie_id: str, comment_id: str) -> None:
@@ -193,7 +195,7 @@ def delete_comment_from_movie(movie_id: str, comment_id: str) -> None:
             'num_mflix_comments': -1
         }
     }
-    db.movies.update_one(filter={'_id': movie_id}, update=movie_update)
+    db.movies.update_one({'_id': movie_id}, update=movie_update)
 
     # Check whether the comment is cached on the movie
     movie = db.movies.find_one({'comments._id': comment_id})
@@ -206,4 +208,4 @@ def delete_comment_from_movie(movie_id: str, comment_id: str) -> None:
                 'comments': list(updated_comments)
             }
         }
-        db.movies.update_one(filter={'_id': movie_id}, update=movie_update)
+        db.movies.update_one({'_id': movie_id}, update=movie_update)

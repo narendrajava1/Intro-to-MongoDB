@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Flask application module.
+Authentication module.
 """
 
 from typing import Union
@@ -20,7 +20,6 @@ bcript = flask_bcrypt.Bcrypt(app)
 
 
 class User(flask_login.UserMixin):
-    # TODO: Figure this out
     pass
 
 
@@ -36,15 +35,6 @@ def create_user_object(user_doc: dict) -> User:
     user_obj.first_name = user_doc['name'].split(', ')[0]
     user_obj.email = user_doc['email']
     return user_obj
-
-
-# TODO: Figure this out
-@login_manager.user_loader
-def user_loader(email: str) -> Union[User, None]:
-    user_doc = db.get_user(email)
-    if not user_doc:
-        return
-    return create_user_object(user_doc)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -135,7 +125,25 @@ def profile():
     return render_template('profile.html')
 
 
-# TODO: Figure this out
+@login_manager.user_loader
+def user_loader(email: str) -> Union[User, None]:
+    """
+    Flask-login user loader for reloading the logged-in user from the session.
+    :param email: str
+    :return: User or None
+    """
+    user_doc = db.get_user(email)
+    if not user_doc:
+        return
+    return create_user_object(user_doc)
+
+
 @login_manager.unauthorized_handler
 def unauthorized_handler():
+    """
+    Flask-login unauthorized handler.
+    When "login_required", this function handles unauthorized users, and
+    redirect them to approapriate place.
+    :return:
+    """
     return render_template('splash_screen.html')
