@@ -4,7 +4,8 @@
 
 **Flask** as backend + **MongoDB** as database
 
-*This project uses `flask_login` module to handle user log-in/log-out and authentication issues.*
+* Since this project uses MongoDB as the database, user registration form is pure HTML fields, and each user is stored as a document in MongoDB.
+* This project uses `flask_login` module to handle user log-in/log-out and authentication issues.
 
 <br>
 
