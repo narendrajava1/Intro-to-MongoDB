@@ -13,10 +13,10 @@ from flask import redirect, render_template, request, url_for
 import mflix.db as db
 from .mflix import app
 
+bcript = flask_bcrypt.Bcrypt(app)
+
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
-
-bcript = flask_bcrypt.Bcrypt(app)
 
 
 class User(flask_login.UserMixin):
