@@ -13,7 +13,6 @@ import flask_login
 import mflix.db as db
 
 app = Flask(__name__)
-app.config.from_object(__name__)
 app.config['SECRET_KEY'] = 'mflix-app-mongodb'
 # Override the configuration values from the configuration file, which is
 # pointed by "MFLIX_SETTINGS" environment variable
