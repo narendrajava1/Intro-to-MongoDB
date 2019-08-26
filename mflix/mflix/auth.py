@@ -20,12 +20,15 @@ login_manager.init_app(app)
 
 
 class User(flask_login.UserMixin):
+    """
+    Self-defined User class, which represents a user of the application.
+    """
     pass
 
 
-def create_user_object(user_doc: dict) -> User:
+def _create_user_object(user_doc: dict) -> User:
     """
-    Creates a User object from the given user document.
+    Helper function to create a User object from the given user document.
     :param user_doc: dict
     :return: User
     """
@@ -68,7 +71,7 @@ def signup():
         )
 
     new_user = db.get_user(email)
-    new_user_obj = create_user_object(new_user)
+    new_user_obj = _create_user_object(new_user)
     flask_login.login_user(new_user_obj)
     return redirect(url_for('show_movies'))
 
@@ -95,7 +98,7 @@ def login():
             'login.html', loginerror='Make sure your password is correct.'
         )
 
-    user_obj = create_user_object(user_doc)
+    user_obj = _create_user_object(user_doc)
     flask_login.login_user(user_obj)
     return redirect(url_for('show_movies'))
 
@@ -135,7 +138,7 @@ def user_loader(email: str) -> Union[User, None]:
     user_doc = db.get_user(email)
     if not user_doc:
         return
-    return create_user_object(user_doc)
+    return _create_user_object(user_doc)
 
 
 @login_manager.unauthorized_handler
