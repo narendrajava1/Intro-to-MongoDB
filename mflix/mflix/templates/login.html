@@ -8,7 +8,7 @@
             {% endif %}
             <h3 class="title is-3">New User?</h3>
             <h5 class="subtitle is-5">Create an account by filling out the form below</h5>
-            <form action="{{ url_for('signup') }}" method="POST">
+            <form method="POST" action="{{ url_for('signup') }}">
                 {% set icon, name, placeholder = "user", "name", "Name" %}
                 {% include "partials/input_text_box.html" %}
 
@@ -37,7 +37,7 @@
             {% endif %}
             <h3 class="title is-3">Already have an account?</h3>
             <h5 class="subtitle is-5">Log in with your email and password below</h5>
-            <form action="{{ url_for('signup') }}" method="POST">
+            <form method="POST" action="{{ url_for('signup') }}">
                 {% set icon, name, placeholder = "envelope", "email", "Email" %}
                 {% include "partials/input_text_box.html" %}
 
