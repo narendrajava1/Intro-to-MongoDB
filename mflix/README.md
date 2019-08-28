@@ -47,3 +47,7 @@ which will restore the dumped data back into the DB cluster.
 
 Then simply go to http://localhost:5000/
 
+<br>
+
+Note that this is just a simple demo Flask project, so I didn't do any packaging in Docker or deployment.
+For packaging the application into a Docker image, check out https://github.com/Ziang-Lu/Flaskr and https://github.com/Ziang-Lu/Flask-Blog
