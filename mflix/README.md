@@ -49,5 +49,27 @@ Then simply go to http://localhost:5000/
 
 <br>
 
+***
+
+### About Class-Based View and RESTful API
+
+I could have implemented the routes as class-based views (called "pluggable views" in Flask), or even designed RESTful API for this `Mflix` project.
+
+=> Follow the steps in the official documentation: https://flask.palletsprojects.com/en/1.1.x/views/ and https://flask.palletsprojects.com/en/1.1.x/api/#class-based-views
+
+<br>
+
+However, considering some facts:
+
+* Flask is a lightweight framework.
+* Class-based views in Flask, i.e., "pluggable views", are inspired from Django, and thus are not very popular.
+* This is just a simple demo Flask project.
+
+I decide NOT to use class-based views for this project.
+
+***
+
+<br>
+
 Note that this is just a simple demo Flask project, so I didn't do any packaging in Docker or deployment.
 For packaging the application into a Docker image, check out https://github.com/Ziang-Lu/Flaskr and https://github.com/Ziang-Lu/Flask-Blog
