@@ -68,8 +68,3 @@ However, considering some facts:
 I decide NOT to use class-based views for this project.
 
 ***
-
-<br>
-
-Note that this is just a simple demo Flask project, so I didn't do any packaging in Docker or deployment.
-For packaging the application into a Docker image, check out https://github.com/Ziang-Lu/Flaskr and https://github.com/Ziang-Lu/Flask-Blog
