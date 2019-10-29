@@ -4,40 +4,14 @@
 Authentication module.
 """
 
-from typing import Union
+from typing import Optional
 
-import flask_bcrypt
 import flask_login
 from flask import redirect, render_template, request, url_for
 
 import mflix.db as db
-from .mflix import app
-
-bcript = flask_bcrypt.Bcrypt(app)
-
-login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
-
-
-class User(flask_login.UserMixin):
-    """
-    Self-defined User class, which represents a user of the application.
-    """
-    pass
-
-
-def _create_user_object(user_doc: dict) -> User:
-    """
-    Helper function to create a User object from the given user document.
-    :param user_doc: dict
-    :return: User
-    """
-    user_obj = User()
-    user_obj.id = user_doc['email']
-    user_obj.name = user_doc['name']
-    user_obj.first_name = user_doc['name'].split(', ')[0]
-    user_obj.email = user_doc['email']
-    return user_obj
+from . import app, bcrypt, login_manager
+from .models import create_user_object
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -47,7 +21,7 @@ def signup():
     :return:
     """
     if request.method == 'GET':
-        return redirect(url_for('login'))
+        return render_template('login.html')
 
     name = request.form['name']
     email = request.form['email']
@@ -63,15 +37,15 @@ def signup():
         )
 
     insertion_result = db.add_user(
-        name, email, hashedpw=bcript.generate_password_hash(pw)
+        name, email, hashedpw=bcrypt.generate_password_hash(pw)
     )
     if 'error' in insertion_result:
         return render_template(
             'login.html', signuperror=insertion_result['error']
         )
 
-    new_user = db.get_user(email)
-    new_user_obj = _create_user_object(new_user)
+    new_user_doc = db.get_user(email)
+    new_user_obj = create_user_object(new_user_doc)
     flask_login.login_user(new_user_obj)
     return redirect(url_for('show_movies'))
 
@@ -79,7 +53,7 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """
-    Log-in Page.
+    Log-in page.
     :return:
     """
     if request.method == 'GET':
@@ -93,26 +67,13 @@ def login():
         return render_template(
             'login.html', loginerror='Make sure your email is correct.'
         )
-    if bcript.check_password_hash(user_doc['pw'], pw):
+    if bcrypt.check_password_hash(user_doc['pw'], pw):
         return render_template(
             'login.html', loginerror='Make sure your password is correct.'
         )
 
-    user_obj = _create_user_object(user_doc)
+    user_obj = create_user_object(user_doc)
     flask_login.login_user(user_obj)
-    return redirect(url_for('show_movies'))
-
-
-@app.route('/logout')
-@flask_login.login_required
-def logout():
-    """
-    Logout page.
-    (Log-in required)
-    When a "GET" request is forwarded to "/logout", this function gets called.
-    :return:
-    """
-    flask_login.logout_user()
     return redirect(url_for('show_movies'))
 
 
@@ -121,32 +82,28 @@ def logout():
 def profile():
     """
     Profile page.
-    (Log-in required)
-    When a "GET" request is forwarded to "/profile", this function gets called.
     :return:
     """
     return render_template('profile.html')
 
 
-@login_manager.user_loader
-def user_loader(email: str) -> Union[User, None]:
+@app.route('/logout')
+@flask_login.login_required
+def logout():
     """
-    Flask-login user loader for reloading the logged-in user from the session.
-    :param email: str
-    :return: User or None
+    Logout page.
+    :return:
     """
-    user_doc = db.get_user(email)
-    if not user_doc:
-        return
-    return _create_user_object(user_doc)
+    flask_login.logout_user()
+    return redirect(url_for('show_movies'))
 
 
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     """
-    Flask-login unauthorized handler.
+    Flask-Login unauthorized handler.
     When "login_required", this function handles unauthorized users, and
-    redirect them to approapriate place.
+    redirect them to appropriate place.
     :return:
     """
     return render_template('splash_screen.html')

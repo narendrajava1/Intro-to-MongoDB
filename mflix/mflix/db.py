@@ -6,14 +6,12 @@ Interface module with MongoDB.
 
 import os
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
 from pymongo import DESCENDING, MongoClient
 from pymongo.errors import DuplicateKeyError
-
-from .auth import User
 
 MOVIE_COMMENT_CACHE_LIMIT = 10
 
@@ -49,11 +47,11 @@ def get_page_movies(filters: dict, movies_per_page: int,
     return page_movies, total_num_of_movies
 
 
-def get_movie(_id: str):
+def get_movie(_id: str) -> Optional[dict]:
     """
     Returns the movie with the given ID.
     :param _id: str
-    :return:
+    :return: dict or None
     """
     try:
         return db.movies.find_one({'_id': ObjectId(_id)})
@@ -64,7 +62,7 @@ def get_movie(_id: str):
 def get_all_genres() -> List[str]:
     """
     Returns all the genres.
-    :return:
+    :return: list[str]
     """
     pipeline = [
         {
@@ -91,22 +89,22 @@ def get_all_genres() -> List[str]:
     return list(db.movies.aggregate(pipeline))[0]['genres']
 
 
-def get_user(email: str):
+def get_user(email: str) -> Optional[dict]:
     """
     Returns the user with the given email.
     :param email: str
-    :return:
+    :return: dict or None
     """
     return db.users.find_one({'email': email})  # Could be None
 
 
-def add_user(name: str, email: str, hashedpw: str):
+def add_user(name: str, email: str, hashedpw: str) -> dict:
     """
     Adds a user with the given name, email and hashed password.
     :param name: str
     :param email: str
     :param hashedpw: str
-    :return:
+    :return: dict
     """
     new_user = {
         'name': name,
@@ -117,14 +115,14 @@ def add_user(name: str, email: str, hashedpw: str):
         db.users.insert_one(new_user)
         return {'success': True}
     except DuplicateKeyError:
-        return {'error': 'A user with the given email already exists.'}
+        return {'error': 'A user with the given email already exists'}
 
 
-def get_movie_comments(_id: str):
+def get_movie_comments(_id: str) -> Optional[List[dict]]:
     """
     Returns the comments of the given movie, from most-recent to least-recent.
     :param _id: int
-    :return:
+    :return: list[dict] or None
     """
     try:
         return db.comments.find({'movie_id': ObjectId(_id)})\
@@ -133,7 +131,7 @@ def get_movie_comments(_id: str):
         return None
 
 
-def add_comment_to_movie(movie_id: str, user: User, comment: str,
+def add_comment_to_movie(movie_id: str, user, comment: str,
                          date: datetime) -> None:
     """
     Adds a comment to the given movie from the given user, on the given date.
@@ -148,7 +146,7 @@ def add_comment_to_movie(movie_id: str, user: User, comment: str,
         movie_id = ObjectId(movie_id)
         # 1. Add a new comment to "comments" collection
         new_comment = {
-            '_id': f'{movie_id}-{user.name}-{datetime.timestamp()}',
+            '_id': f'{movie_id}-{user.name}-{date.timestamp()}',
             'movie_id': movie_id,
             'name': user.name,
             'email': user.email,

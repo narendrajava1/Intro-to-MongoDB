@@ -7,37 +7,21 @@ Flask application module.
 from datetime import datetime
 from urllib.parse import urlencode
 
-from flask import Flask, redirect, render_template, request, url_for
+from flask import redirect, render_template, request, url_for
 import flask_login
 
 import mflix.db as db
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'mflix-app-mongodb'
-# Override the configuration values from the configuration file, which is
-# pointed by "MFLIX_SETTINGS" environment variable
-app.config.from_envvar('MFLIX_SETTINGS', silent=True)
-
-login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
-
-# Since in "auth.py", we are importing "app" from this module, we have to import
-# that "auth.py" module after we instantiated "app".
-from .auth import login, logout
+from . import app
 
 
 @app.route('/')
 def show_movies():
     """
     Mflix application home page.
-    When a "GET" request is forwarded to "/", this function gets called.
     :return:
     """
     movies_per_page = 20
 
-    # Note!
-    # When a "GET" request is forwarded, the URL may be carrying some arguments,
-    # which is stored in "request.args".
     try:
         page = int(request.args.get('page'))
     except (TypeError, ValueError):
@@ -82,7 +66,6 @@ def show_movies():
 def show_movie(id: str):
     """
     Movie detail page.
-    (Log-in required)
     :param id: str
     :return:
     """
@@ -90,9 +73,6 @@ def show_movie(id: str):
         'movie': db.get_movie(id)
     }
     if request.method == 'POST':
-        # Note:
-        # When a "POST" request is forwarded, the request is carrying the filled
-        # form, stored in "request.form"
         context['new_comment'] = request.form['comment']
     return render_template('movie.html', **context)
 
@@ -102,7 +82,6 @@ def show_movie(id: str):
 def show_movie_comments(id: str):
     """
     Movie comments page.
-    (Log-in required)
     :param id: str
     :return:
     """
@@ -120,19 +99,16 @@ def show_movie_comments(id: str):
     return render_template('movie_comments.html', **context)
 
 
-@app.route('/movies/<id>/comments/<comment_id>/delete', methods=['POST'])
+@app.route('/movies/<movie_id>/comments/<comment_id>/delete', methods=['POST'])
 @flask_login.login_required
-def delete_movie_comment(id: str, comment_id: str):
+def delete_movie_comment(movie_id: str, comment_id: str):
     """
     Movie deletion page.
-    (Log-in required)
-    When a "POST" request is forwarded to
-    "/movies/<id>/comments/<comment_id>/delete", this function gets called.
-    :param id: str
+    :param movie_id: str
     :param comment_id: str
     :return:
     """
-    db.delete_comment_from_movie(id, comment_id)
+    db.delete_comment_from_movie(movie_id, comment_id)
     return redirect(url_for('show_movie', id=id))
 
 
@@ -141,9 +117,6 @@ def delete_movie_comment(id: str, comment_id: str):
 def watch_movie(id: str):
     """
     Movie watch page.
-    (Log-in required)
-    When a "GET" request is forwarded to "/movies/watch/<id>", this function
-    gets called.
     :param id: str
     :return:
     """

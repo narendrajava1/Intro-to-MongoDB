@@ -23,8 +23,8 @@ Play around with MongoDB Atlas:
 * Import data to MongoDB Atlas
 
   ```bash
-  > cd mflix
-  > mongoimport --type csv --headerline --file movies_initial.csv --host "Cluster0-shard-0/cluster0-shard-00-00-hanbs.mongodb.net:27017,cluster0-shard-00-01-hanbs.mongodb.net:27017,cluster0-shard-00-02-hanbs.mongodb.net:27017" --db mflix --collection movies_initial --authenticationDatabase admin --ssl --username <username> --password <password>
+  $ cd mflix
+  $ mongoimport --type csv --headerline --file movies_initial.csv --host "Cluster0-shard-0/cluster0-shard-00-00-hanbs.mongodb.net:27017,cluster0-shard-00-01-hanbs.mongodb.net:27017,cluster0-shard-00-02-hanbs.mongodb.net:27017" --db mflix --collection movies_initial --authenticationDatabase admin --ssl --username <username> --password <password>
   ```
 
 ***
@@ -34,13 +34,11 @@ Play around with MongoDB Atlas:
 ### 3. Python Environment Setup
 
 ```bash
-> virtualenv mflix-env
-```
+$ pipenv --python=3.7
+$ pipenv shell
 
-```bash
-> source mflix-env/bin/activate
-
-> pip3 install pymongo dnspython
+# Install all the packages specified in Pipfile
+$ pipenv install
 ```
 
 <br>
