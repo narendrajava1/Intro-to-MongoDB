@@ -10,7 +10,7 @@
                     <blockquote>{{ comment['text'] }}</blockquote>
                     </p>
                     {% if current_user.email == comment.email %}
-                        <form method="POST" action="{{ url_for('delete_movie_comment', id=movie['_id'], comment_id=comment['_id']) }}">
+                        <form method="POST" action="{{ url_for('delete_movie_comment', movie_id=movie['_id'], comment_id=comment['_id']) }}">
                             <input class="button is-danger" type="submit" value="Delete">
                         </form>
                     {% endif %}
