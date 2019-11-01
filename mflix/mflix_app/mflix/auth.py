@@ -4,14 +4,12 @@
 Authentication module.
 """
 
-from typing import Optional
-
 import flask_login
+import requests
 from flask import redirect, render_template, request, url_for
 
-import mflix.db as db
 from . import app, bcrypt, login_manager
-from .models import create_user_object
+from .models import User, get_user
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -36,16 +34,21 @@ def signup():
             'login.html', signuperror='Make sure to confirm the password!'
         )
 
-    insertion_result = db.add_user(
-        name, email, hashedpw=bcrypt.generate_password_hash(pw)
+    r = requests.post(
+        'http://auth_service:8000/users',
+        json={
+            'name': name,
+            'email': email,
+            'pw': bcrypt.generate_password_hash(pw)
+        }
     )
-    if 'error' in insertion_result:
+    if r.status_code != 201:
         return render_template(
-            'login.html', signuperror=insertion_result['error']
+            'login.html', signuperror=r.json()['message']
         )
 
-    new_user_doc = db.get_user(email)
-    new_user_obj = create_user_object(new_user_doc)
+    new_user_doc = r.json()['data']
+    new_user_obj = User().from_json(new_user_doc)
     flask_login.login_user(new_user_obj)
     return redirect(url_for('show_movies'))
 
@@ -62,7 +65,7 @@ def login():
     email = request.form['email']
     pw = request.form['password']
 
-    user_doc = db.get_user(email)
+    user_doc = get_user(email)
     if not user_doc:
         return render_template(
             'login.html', loginerror='Make sure your email is correct.'
@@ -72,7 +75,7 @@ def login():
             'login.html', loginerror='Make sure your password is correct.'
         )
 
-    user_obj = create_user_object(user_doc)
+    user_obj = User().from_json(user_doc)
     flask_login.login_user(user_obj)
     return redirect(url_for('show_movies'))
 

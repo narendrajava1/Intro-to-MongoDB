@@ -4,13 +4,15 @@
 Flask application module.
 """
 
+import requests
 from datetime import datetime
+from typing import Optional
 from urllib.parse import urlencode
 
-from flask import redirect, render_template, request, url_for
+import bson.json_util
 import flask_login
+from flask import redirect, render_template, request, url_for
 
-import mflix.db as db
 from . import app
 
 
@@ -22,11 +24,6 @@ def show_movies():
     """
     movies_per_page = 20
 
-    try:
-        page = int(request.args.get('page'))
-    except (TypeError, ValueError):
-        page = 0
-
     filters = {}
     genre = request.args.get('genre')
     if genre:
@@ -36,17 +33,25 @@ def show_movies():
         filters['$text'] = {'$search': search}
 
     # For pagination
+    page = request.args.get('page', type=int, default=0)
+
     args_copy = request.args.copy()
     args_copy['page'] = page - 1
     prev_page = urlencode(args_copy)
     args_copy['page'] = page + 1
     next_page = urlencode(args_copy)
 
-    page_movies, total_num_of_movies = db.get_page_movies(
-        filters, movies_per_page, page
-    )
+    request_url = f'http://movie_service:8000/movies'
+    if request.args:
+        request_url += f'?{urlencode(request.args)}'
 
-    all_genres = db.get_all_genres()
+    r = requests.get(request_url, json=filters)
+    json_data = r.json()['data']
+    page_movies = bson.json_util.loads(json_data['page_movies'])  # A BSON document is serialized to a string, so we need to deserialize it back to a BSON document.
+    total_num_of_movies = json_data['total_num_of_movies']
+
+    r = requests.get('http://movie_service:8000/movie-genres')
+    all_genres = r.json()['data']
 
     context = {
         'total_num_of_entries': total_num_of_movies,
@@ -70,11 +75,24 @@ def show_movie(id: str):
     :return:
     """
     context = {
-        'movie': db.get_movie(id)
+        'movie': _get_movie(id)
     }
     if request.method == 'POST':
         context['new_comment'] = request.form['comment']
     return render_template('movie.html', **context)
+
+
+def _get_movie(id: str) -> Optional[dict]:
+    """
+    Private helper function to get the movie with the given ID.
+    :param id:
+    :return: dict or None
+    """
+    r = requests.get(f'http://movie_service:8000/movies/{id}')
+    if r.status_code == 200:
+        return bson.json_util.loads(r.json()['data'])
+    else:
+        return None
 
 
 @app.route('/movies/<id>/comments', methods=['GET', 'POST'])
@@ -87,14 +105,26 @@ def show_movie_comments(id: str):
     """
     if request.method == 'POST':
         comment = request.form['comment']
-        db.add_comment_to_movie(
-            id, flask_login.current_user, comment, datetime.now()
+        requests.post(
+            f'http://movie_service:8000/movies/{id}/comments',
+            json={
+                'movie_id': id,
+                'user': flask_login.current_user.to_json(),
+                'text': comment,
+                'date': datetime.now().isoformat()
+            }
         )
         return redirect(url_for('show_movie', id=id))
 
+    r = requests.get(f'http://movie_service:8000/movie/{id}/comments')
+    if r.status_code == 200:
+        comments = r.json()['data']
+    else:
+        comments = []
+
     context = {
-        'movie': db.get_movie(id),
-        'comments': db.get_movie_comments(id)
+        'movie': _get_movie(id),
+        'comments': comments
     }
     return render_template('movie_comments.html', **context)
 
@@ -108,7 +138,9 @@ def delete_movie_comment(movie_id: str, comment_id: str):
     :param comment_id: str
     :return:
     """
-    db.delete_comment_from_movie(movie_id, comment_id)
+    requests.delete(
+        f'http://movie_service:8000/movies/{movie_id}/comments/{comment_id}'
+    )
     return redirect(url_for('show_movie', id=id))
 
 
@@ -121,6 +153,6 @@ def watch_movie(id: str):
     :return:
     """
     context = {
-        'movie': db.get_movie(id)
+        'movie': _get_movie(id)
     }
     return render_template('watch_movie.html', **context)
