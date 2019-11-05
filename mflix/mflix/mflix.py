@@ -7,8 +7,8 @@ Flask application module.
 from datetime import datetime
 from urllib.parse import urlencode
 
-from flask import redirect, render_template, request, url_for
 import flask_login
+from flask import redirect, render_template, request, url_for
 
 import mflix.db as db
 from . import app
@@ -22,11 +22,6 @@ def show_movies():
     """
     movies_per_page = 20
 
-    try:
-        page = int(request.args.get('page'))
-    except (TypeError, ValueError):
-        page = 0
-
     filters = {}
     genre = request.args.get('genre')
     if genre:
@@ -36,6 +31,8 @@ def show_movies():
         filters['$text'] = {'$search': search}
 
     # For pagination
+    page = request.args.get('page', type=int, default=0)
+
     args_copy = request.args.copy()
     args_copy['page'] = page - 1
     prev_page = urlencode(args_copy)
