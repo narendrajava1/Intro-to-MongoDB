@@ -46,7 +46,7 @@ class UserList(Resource):
         :return:
         """
         try:
-            user_data = user_schema.load(request.get_json())
+            user_data = user_schema.load(request.json)
         except ValidationError as e:
             return {
                 'message': e.messages
@@ -89,8 +89,7 @@ class UserAuth(Resource):
                 'message': 'Make sure your email is correct'
             }, 400
 
-        pw = request.get_json()['pw']
-        if not bcrypt.check_password_hash(user['pw'], pw):
+        if not bcrypt.check_password_hash(user['pw'], request.json['pw']):
             return {
                 'message': 'Make sure your password is correct'
             }, 400

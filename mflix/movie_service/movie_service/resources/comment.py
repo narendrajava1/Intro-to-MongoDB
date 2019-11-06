@@ -61,7 +61,7 @@ class MovieComments(Resource):
             }, 404
 
         try:
-            new_comment = comment_schema.load(request.get_json())
+            new_comment = comment_schema.load(request.json)
         except ValidationError as e:
             return {
                 'message': e.messages
