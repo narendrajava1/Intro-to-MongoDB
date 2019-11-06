@@ -9,7 +9,7 @@ from flask_restful import Resource
 from marshmallow import ValidationError
 from pymongo.errors import DuplicateKeyError
 
-from .. import db
+from .. import bcrypt, db
 from ..models import user_schema
 
 
@@ -37,7 +37,7 @@ class UserList(Resource):
 
         return {
             'status': 'success',
-            'data': user
+            'data': user_schema.dump(user)
         }
 
     def post(self):
@@ -52,6 +52,8 @@ class UserList(Resource):
                 'message': e.messages
             }, 400
 
+        user_data['pw'] = bcrypt.generate_password_hash(user_data['pw'])\
+            .decode('utf-8')
         try:
             db.users.insert_one(user_data)
         except DuplicateKeyError:
@@ -63,3 +65,36 @@ class UserList(Resource):
             'status': 'success',
             'data': user_schema.dump(user_data)
         }, 201
+
+
+class UserAuth(Resource):
+    """
+    Resource for user authentication.
+    """
+
+    def get(self):
+        """
+        Handles user authentication.
+        :return:
+        """
+        email = request.args.get('email')
+        if not email:
+            return {
+                'message': 'Email argument not provided'
+            }, 400
+
+        user = db.users.find_one({'email': email})
+        if not user:
+            return {
+                'message': 'Make sure your email is correct'
+            }, 400
+
+        pw = request.get_json()['pw']
+        if not bcrypt.check_password_hash(user['pw'], pw):
+            return {
+                'message': 'Make sure your password is correct'
+            }, 400
+        return {
+            'status': 'success',
+            'data': user_schema.dump(user)
+        }

@@ -47,15 +47,15 @@ def user_loader(email: str) -> Optional[User]:
     :param email: str
     :return: User or None
     """
-    user_doc = get_user(email)
+    user_doc = _get_user(email)
     if user_doc:
         return User().from_json(user_doc)
     return None
 
 
-def get_user(email: str) -> Optional[dict]:
+def _get_user(email: str) -> Optional[dict]:
     """
-    Helper function to return the user with the given email.
+    Private helper function to return the user with the given email.
     :param email: str
     :return: dict or None
     """

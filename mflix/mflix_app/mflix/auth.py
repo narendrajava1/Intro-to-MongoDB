@@ -8,8 +8,8 @@ import flask_login
 import requests
 from flask import redirect, render_template, request, url_for
 
-from . import app, bcrypt, login_manager
-from .models import User, get_user
+from . import app, login_manager
+from .models import User
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -39,13 +39,11 @@ def signup():
         json={
             'name': name,
             'email': email,
-            'pw': bcrypt.generate_password_hash(pw)
+            'pw': pw
         }
     )
     if r.status_code != 201:
-        return render_template(
-            'login.html', signuperror=r.json()['message']
-        )
+        return render_template('login.html', signuperror=r.json()['message'])
 
     new_user_doc = r.json()['data']
     new_user_obj = User().from_json(new_user_doc)
@@ -65,16 +63,13 @@ def login():
     email = request.form['email']
     pw = request.form['password']
 
-    user_doc = get_user(email)
-    if not user_doc:
-        return render_template(
-            'login.html', loginerror='Make sure your email is correct.'
-        )
-    if bcrypt.check_password_hash(user_doc['pw'], pw):
-        return render_template(
-            'login.html', loginerror='Make sure your password is correct.'
-        )
+    r = requests.get(
+        'http://auth_service:8000/user-auth/?email={email}', json={'pw': pw}
+    )
+    if r.status_code != 200:
+        return render_template('login.html', loginerror=r.json()['message'])
 
+    user_doc = r.json()['data']
     user_obj = User().from_json(user_doc)
     flask_login.login_user(user_obj)
     return redirect(url_for('show_movies'))
