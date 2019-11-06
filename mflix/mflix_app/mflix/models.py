@@ -50,7 +50,6 @@ def user_loader(email: str) -> Optional[User]:
     user_doc = _get_user(email)
     if user_doc:
         return User().from_json(user_doc)
-    return None
 
 
 def _get_user(email: str) -> Optional[dict]:
@@ -62,5 +61,3 @@ def _get_user(email: str) -> Optional[dict]:
     r = requests.get(f'http://auth_service:8000/users/?email={email}')
     if r.status_code == 200:
         return r.json()['data']
-    else:
-        return None
