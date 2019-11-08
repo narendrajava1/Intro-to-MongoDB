@@ -1,14 +1,5 @@
 # Mflix Project
 
-## Tech Stack
-
-**Flask** as backend + **MongoDB** as database
-
-* Since this project uses MongoDB as the database, user registration form is pure HTML fields, and each user is stored as a document in MongoDB.
-* This project uses `Flask-Login` module to handle user log-in/log-out and authentication issues.
-
-<br>
-
 ## Project Environment Setup
 
 Follow the course environment setup in `../README.md`
@@ -32,6 +23,25 @@ In `env.sh`, we defined the necessary environmental variables for this project. 
    ```
 
    which will restore the dumped data back into the DB cluster.
+
+<br>
+
+## Tech Stack (Implementation Notes)
+
+### 1. Naive Implementation (Monolithic)
+
+The entire application is implemented as a <u>monolithic **Flask** application</u>.
+
+* Since this project uses **MongoDB** as the database, user registration form is pure HTML fields, and each user is stored as a document in MongoDB.
+* This project uses `Flask-Login` module to handle user log-in/log-out, authentication and session issues.
+
+Check out the `naive-impl-dev` branch on the GitHub repo: https://github.com/Ziang-Lu/Intro-to-MongoDB/tree/naive-impl-dev
+
+<br>
+
+### 2. Implementation with RESTful Architecture (Microservices)
+
+
 
 <br>
 
