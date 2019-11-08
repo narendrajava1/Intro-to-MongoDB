@@ -64,7 +64,7 @@ def login():
     pw = request.form['password']
 
     r = requests.get(
-        'http://auth_service:8000/user-auth/?email={email}', json={'pw': pw}
+        f'http://auth_service:8000/user-auth/?email={email}', json={'pw': pw}
     )
     if r.status_code != 200:
         return render_template('login.html', loginerror=r.json()['message'])
